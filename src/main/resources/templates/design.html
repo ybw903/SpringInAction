@@ -8,8 +8,12 @@
 </head>
 <body>
 <h1>Design your taco!</h1>
-
-<form method="POST" th:object="${taco}">
+<h2>Feelin' hungry, <span th:text="${user.fullname}">NAME</span>?</h2>
+<form method="POST" th:action="@{/logout}" id="logoutForm">
+    <input type="submit" value="Logout"/>
+</form>
+<form method="POST" th:object="${taco}" th:action="@{/design}"
+        id="tacoForm">
         <span class="validationError"
               th:if="${#fields.hasErrors('ingredients')}"
               th:errors="*{ingredients}">Ingredient Error</span>
