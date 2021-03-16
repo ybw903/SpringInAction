@@ -3,12 +3,17 @@ package tacos.web.api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tacos.Taco;
 import tacos.data.TacoRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -18,6 +23,7 @@ public class RecentDesignTacoController { //같은 이름의 빈 중복 불가, 
 
     private TacoRepository tacoRepository;
 
+    // https://docs.spring.io/spring-hateoas/docs/current/reference/html/#reference
     /*
         Spring HATEOAS
         @Autowired
@@ -30,10 +36,26 @@ public class RecentDesignTacoController { //같은 이름의 빈 중복 불가, 
 
 
     @GetMapping("/recent")
-    public Iterable<Taco> recentTacos() {
-        PageRequest page = PageRequest.of(0,12, Sort.by("createdAt").descending());
+    public CollectionModel<TacoResource> recentTacos() {
+        // ResourceSupport is now RepresentationModel
+        // Resource is now EntityModel
+        // Resources is now CollectionModel
+        // PagedResources is now PagedModel
+
         // Refactor TacoRepository extends PagingAndSortingRepository
-        return tacoRepository.findAll(page).getContent();
+        PageRequest page = PageRequest.of(0,12, Sort.by("createdAt").descending());
+        List<Taco> tacos = tacoRepository.findAll(page).getContent();
+
+        //List<TacoResource> tacoResources = new TacoResourceAssembler().toModel(tacos);
+        CollectionModel<TacoResource> tacoResources = new TacoResourceAssembler().toCollectionModel(tacos);
+
+        //CollectionModel<EntityModel<Taco>> recentResources = CollectionModel.wrap(tacos);
+        tacoResources.add(
+                WebMvcLinkBuilder
+                .linkTo(WebMvcLinkBuilder.methodOn(RecentDesignTacoController.class).recentTacos())
+                .withRel("recents")
+        );
+        return tacoResources;
     }
 
     @GetMapping("/{id}")
