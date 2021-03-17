@@ -3,6 +3,8 @@ package tacos.web.api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
@@ -16,9 +18,7 @@ import tacos.data.TacoRepository;
 import java.util.List;
 import java.util.Optional;
 
-@RestController
-@RequestMapping(path="/design", produces = "application/json")
-@CrossOrigin(origins = "*")
+@RepositoryRestController
 public class RecentDesignTacoController { //같은 이름의 빈 중복 불가, 어노테이션에 이름 추가 or BeanNameGenerator 직접 구현
 
     private TacoRepository tacoRepository;
@@ -35,7 +35,7 @@ public class RecentDesignTacoController { //같은 이름의 빈 중복 불가, 
     }
 
 
-    @GetMapping("/recent")
+    @GetMapping(value = "/tacos/recent", produces = "application/hal+json")
     public CollectionModel<TacoResource> recentTacos() {
         // ResourceSupport is now RepresentationModel
         // Resource is now EntityModel
